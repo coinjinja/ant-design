@@ -38,9 +38,10 @@ import Group from './button-group';
 import { ConfigContext } from '../config-provider';
 import Wave from '../_util/wave';
 import { tuple } from '../_util/type';
-import warning from '../_util/warning';
+import devWarning from '../_util/devWarning';
 import SizeContext from '../config-provider/SizeContext';
 import LoadingIcon from './LoadingIcon';
+import { cloneElement } from '../_util/reactNode';
 var rxTwoCNChar = /^[\u4e00-\u9fa5]{2}$/;
 var isTwoCNChar = rxTwoCNChar.test.bind(rxTwoCNChar);
 
@@ -58,7 +59,9 @@ function insertSpace(child, needInserted) {
   var SPACE = needInserted ? ' ' : ''; // strictNullChecks oops.
 
   if (typeof child !== 'string' && typeof child !== 'number' && isString(child.type) && isTwoCNChar(child.props.children)) {
-    return React.cloneElement(child, {}, child.props.children.split('').join(SPACE));
+    return cloneElement(child, {
+      children: child.props.children.split('').join(SPACE)
+    });
   }
 
   if (typeof child === 'string') {
@@ -96,9 +99,20 @@ function spaceChildren(children, needInserted) {
   });
 }
 
-var ButtonTypes = tuple('default', 'primary', 'ghost', 'dashed', 'link');
+var ButtonTypes = tuple('default', 'primary', 'ghost', 'dashed', 'link', 'text');
 var ButtonShapes = tuple('circle', 'circle-outline', 'round');
 var ButtonHTMLTypes = tuple('submit', 'button', 'reset');
+export function convertLegacyProps(type) {
+  if (type === 'danger') {
+    return {
+      danger: true
+    };
+  }
+
+  return {
+    type: type
+  };
+}
 
 var InternalButton = function InternalButton(props, ref) {
   var _classNames;
@@ -120,14 +134,14 @@ var InternalButton = function InternalButton(props, ref) {
       autoInsertSpaceInButton = _React$useContext.autoInsertSpaceInButton,
       direction = _React$useContext.direction;
 
-  var buttonRef = ref || React.createRef();
+  var buttonRef = ref || /*#__PURE__*/React.createRef();
   var delayTimeout;
 
   var isNeedInserted = function isNeedInserted() {
     var icon = props.icon,
         children = props.children,
         type = props.type;
-    return React.Children.count(children) === 1 && !icon && type !== 'link';
+    return React.Children.count(children) === 1 && !icon && type !== 'link' && type !== 'text';
   };
 
   var fixTwoCNChar = function fixTwoCNChar() {
@@ -188,7 +202,7 @@ var InternalButton = function InternalButton(props, ref) {
       block = props.block,
       rest = __rest(props, ["prefixCls", "type", "danger", "shape", "size", "className", "children", "icon", "ghost", "block"]);
 
-  warning(!(typeof icon === 'string' && icon.length > 2), 'Button', "`icon` is using ReactNode instead of string naming in v4. Please check `".concat(icon, "` at https://ant.design/components/icon"));
+  devWarning(!(typeof icon === 'string' && icon.length > 2), 'Button', "`icon` is using ReactNode instead of string naming in v4. Please check `".concat(icon, "` at https://ant.design/components/icon"));
   var prefixCls = getPrefixCls('btn', customizePrefixCls);
   var autoInsertSpace = autoInsertSpaceInButton !== false; // large => lg
   // small => sm
@@ -238,14 +252,14 @@ var InternalButton = function InternalButton(props, ref) {
     ref: buttonRef
   }), iconNode, kids);
 
-  if (type === 'link') {
+  if (type === 'link' || type === 'text') {
     return buttonNode;
   }
 
   return /*#__PURE__*/React.createElement(Wave, null, buttonNode);
 };
 
-var Button = React.forwardRef(InternalButton);
+var Button = /*#__PURE__*/React.forwardRef(InternalButton);
 Button.displayName = 'Button';
 Button.defaultProps = {
   loading: false,

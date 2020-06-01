@@ -2,6 +2,25 @@
 /* stylelint-disable no-duplicate-selectors */
 /* stylelint-disable */
 /* stylelint-disable declaration-bang-space-before,no-duplicate-selectors,string-no-newline */
+[class^=ant-]::-ms-clear,
+[class*= ant-]::-ms-clear,
+[class^=ant-] input::-ms-clear,
+[class*= ant-] input::-ms-clear,
+[class^=ant-] input::-ms-reveal,
+[class*= ant-] input::-ms-reveal {
+  display: none;
+}
+[class^=ant-],
+[class*= ant-],
+[class^=ant-] *,
+[class*= ant-] *,
+[class^=ant-] *::before,
+[class*= ant-] *::before,
+[class^=ant-] *::after,
+[class*= ant-] *::after {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
 /* stylelint-disable at-rule-no-unknown */
 html,
 body {
@@ -29,24 +48,11 @@ html {
 @-ms-viewport {
   width: device-width;
 }
-article,
-aside,
-dialog,
-figcaption,
-figure,
-footer,
-header,
-hgroup,
-main,
-nav,
-section {
-  display: block;
-}
 body {
   margin: 0;
   color: rgba(0, 0, 0, 0.65);
   font-size: 14px;
-  font-family: -apple-system, BlinkMacSystemFont, Lucida Grande, Arial, Segoe UI, Roboto, Helvetica Neue, Noto Sans JP, Noto Sans CJK JP, "Takao Pゴシック", "游ゴシック", YuGothic, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
+  font-family: -apple-system, BlinkMacSystemFont, Lucida Grande, Arial, Segoe UI, Roboto, Helvetica Neue, Noto Sans JP, Noto Sans CJK JP, 'Takao Pゴシック', '游ゴシック', YuGothic, sans-serif, Apple Color Emoji, Segoe UI Emoji, Segoe UI Symbol, Noto Color Emoji;
   font-variant: tabular-nums;
   line-height: 1.5715;
   background-color: #fff;

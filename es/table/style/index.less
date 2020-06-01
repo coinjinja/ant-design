@@ -354,16 +354,14 @@
   }
 
   // ========================== Selections ==========================
-  colgroup {
-    > col.@{table-prefix-cls}-selection-col {
-      width: @table-selection-column-width;
-    }
+  .@{table-prefix-cls}-selection-col {
+    width: @table-selection-column-width;
   }
 
   table tr th&-selection-column,
   table tr td&-selection-column {
-    width: @table-selection-column-width;
-    min-width: @table-selection-column-width;
+    padding-right: @padding-xs;
+    padding-left: @padding-xs;
     text-align: center;
 
     .@{ant-prefix}-radio-wrapper {
@@ -498,6 +496,9 @@
   // ========================= Placeholder ==========================
   &-tbody > tr&-placeholder {
     text-align: center;
+    .@{table-prefix-cls}-empty & {
+      color: @disabled-color;
+    }
     &:hover {
       > td {
         background: @component-background;

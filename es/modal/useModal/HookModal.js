@@ -59,4 +59,4 @@ var HookModal = function HookModal(_ref, ref) {
   });
 };
 
-export default React.forwardRef(HookModal);
+export default /*#__PURE__*/React.forwardRef(HookModal);

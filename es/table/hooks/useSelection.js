@@ -1,5 +1,7 @@
 function _toArray(arr) { return _arrayWithHoles(arr) || _iterableToArray(arr) || _unsupportedIterableToArray(arr) || _nonIterableRest(); }
 
+function _defineProperty(obj, key, value) { if (key in obj) { Object.defineProperty(obj, key, { value: value, enumerable: true, configurable: true, writable: true }); } else { obj[key] = value; } return obj; }
+
 function _extends() { _extends = Object.assign || function (target) { for (var i = 1; i < arguments.length; i++) { var source = arguments[i]; for (var key in source) { if (Object.prototype.hasOwnProperty.call(source, key)) { target[key] = source[key]; } } } return target; }; return _extends.apply(this, arguments); }
 
 function _slicedToArray(arr, i) { return _arrayWithHoles(arr) || _iterableToArrayLimit(arr, i) || _unsupportedIterableToArray(arr, i) || _nonIterableRest(); }
@@ -24,11 +26,12 @@ function _arrayLikeToArray(arr, len) { if (len == null || len > arr.length) len 
 
 import * as React from 'react';
 import DownOutlined from '@ant-design/icons/DownOutlined';
+import { INTERNAL_COL_DEFINE } from 'rc-table';
 import Checkbox from '../../checkbox';
 import Dropdown from '../../dropdown';
 import Menu from '../../menu';
 import Radio from '../../radio';
-import warning from '../../_util/warning';
+import devWarning from '../../_util/devWarning';
 var EMPTY_LIST = []; // TODO: warning if use ajax!!!
 
 export var SELECTION_ALL = 'SELECT_ALL';
@@ -63,7 +66,8 @@ export default function useSelection(rowSelection, config) {
       selectionType = _ref.type,
       selections = _ref.selections,
       fixed = _ref.fixed,
-      customizeRenderCell = _ref.renderCell;
+      customizeRenderCell = _ref.renderCell,
+      hideSelectAll = _ref.hideSelectAll;
 
   var prefixCls = config.prefixCls,
       data = config.data,
@@ -99,13 +103,20 @@ export default function useSelection(rowSelection, config) {
     }
   }, [!!rowSelection]);
   var setSelectedKeys = React.useCallback(function (keys) {
-    setInnerSelectedKeys(keys);
-    var records = keys.map(function (key) {
-      return getRecordByKey(key);
+    var availableKeys = [];
+    var records = [];
+    keys.forEach(function (key) {
+      var record = getRecordByKey(key);
+
+      if (record !== undefined) {
+        availableKeys.push(key);
+        records.push(record);
+      }
     });
+    setInnerSelectedKeys(availableKeys);
 
     if (onSelectionChange) {
-      onSelectionChange(keys, records);
+      onSelectionChange(availableKeys, records);
     }
   }, [setInnerSelectedKeys, getRecordByKey, onSelectionChange]); // Trigger single `onSelect` event
 
@@ -120,7 +131,7 @@ export default function useSelection(rowSelection, config) {
     setSelectedKeys(keys);
   }, [onSelect, getRecordByKey, setSelectedKeys]);
   var mergedSelections = React.useMemo(function () {
-    if (!selections) {
+    if (!selections || hideSelectAll) {
       return null;
     }
 
@@ -157,7 +168,7 @@ export default function useSelection(rowSelection, config) {
             setSelectedKeys(keys);
 
             if (onSelectInvert) {
-              warning(false, 'Table', '`onSelectInvert` will be removed in future. Please use `onChange` instead.');
+              devWarning(false, 'Table', '`onSelectInvert` will be removed in future. Please use `onChange` instead.');
               onSelectInvert(keys);
             }
           }
@@ -184,7 +195,7 @@ export default function useSelection(rowSelection, config) {
       checkboxPropsMap.set(key, checkboxProps);
 
       if (process.env.NODE_ENV !== 'production' && ('checked' in checkboxProps || 'defaultChecked' in checkboxProps)) {
-        warning(false, 'Table', 'Do not set `checked` or `defaultChecked` in `getCheckboxProps`. Please use `selectedRowKeys` instead.');
+        devWarning(false, 'Table', 'Do not set `checked` or `defaultChecked` in `getCheckboxProps`. Please use `selectedRowKeys` instead.');
       }
     }); // Record key only need check with enabled
 
@@ -261,7 +272,7 @@ export default function useSelection(rowSelection, config) {
         var checkboxProps = checkboxPropsMap.get(key) || {};
         return checkboxProps.disabled;
       });
-      title = /*#__PURE__*/React.createElement("div", {
+      title = !hideSelectAll && /*#__PURE__*/React.createElement("div", {
         className: "".concat(prefixCls, "-selection")
       }, /*#__PURE__*/React.createElement(Checkbox, {
         checked: !allDisabled && !!flattedData.length && checkedCurrentAll,
@@ -389,12 +400,14 @@ export default function useSelection(rowSelection, config) {
     }; // Columns
 
 
-    var selectionColumn = {
+    var selectionColumn = _defineProperty({
       width: selectionColWidth,
       className: "".concat(prefixCls, "-selection-column"),
       title: rowSelection.columnTitle || title,
       render: renderSelectionCell
-    };
+    }, INTERNAL_COL_DEFINE, {
+      className: "".concat(prefixCls, "-selection-col")
+    });
 
     if (expandType === 'row' && columns.length && !expandIconColumnIndex) {
       var _columns = _toArray(columns),

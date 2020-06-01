@@ -29,13 +29,16 @@ var __rest = this && this.__rest || function (s, e) {
 
 import * as React from 'react';
 import ExclamationCircleFilled from '@ant-design/icons/ExclamationCircleFilled';
+import KeyCode from "rc-util/es/KeyCode";
 import Tooltip from '../tooltip';
 import Button from '../button';
+import { convertLegacyProps } from '../button/button';
 import LocaleReceiver from '../locale-provider/LocaleReceiver';
 import defaultLocale from '../locale/default';
 import { ConfigContext } from '../config-provider';
 import { getRenderPropValue } from '../_util/getRenderPropValue';
-var Popconfirm = React.forwardRef(function (props, ref) {
+import { cloneElement } from '../_util/reactNode';
+var Popconfirm = /*#__PURE__*/React.forwardRef(function (props, ref) {
   var _React$useState = React.useState(props.visible),
       _React$useState2 = _slicedToArray(_React$useState, 2),
       visible = _React$useState2[0],
@@ -78,6 +81,12 @@ var Popconfirm = React.forwardRef(function (props, ref) {
     }
   };
 
+  var _onKeyDown = function onKeyDown(e) {
+    if (e.keyCode === KeyCode.ESC && visible) {
+      settingVisible(false, e);
+    }
+  };
+
   var onVisibleChange = function onVisibleChange(value) {
     var disabled = props.disabled;
 
@@ -108,8 +117,8 @@ var Popconfirm = React.forwardRef(function (props, ref) {
       onClick: onCancel,
       size: "small"
     }, cancelButtonProps), cancelText || popconfirmLocale.cancelText), /*#__PURE__*/React.createElement(Button, _extends({
-      onClick: onConfirm,
-      type: okType,
+      onClick: onConfirm
+    }, convertLegacyProps(okType), {
       size: "small"
     }, okButtonProps), okText || popconfirmLocale.okText)));
   };
@@ -119,7 +128,8 @@ var Popconfirm = React.forwardRef(function (props, ref) {
 
   var customizePrefixCls = props.prefixCls,
       placement = props.placement,
-      restProps = __rest(props, ["prefixCls", "placement"]);
+      children = props.children,
+      restProps = __rest(props, ["prefixCls", "placement", "children"]);
 
   var prefixCls = getPrefixCls('popover', customizePrefixCls);
   var overlay = /*#__PURE__*/React.createElement(LocaleReceiver, {
@@ -135,6 +145,14 @@ var Popconfirm = React.forwardRef(function (props, ref) {
     visible: visible,
     overlay: overlay,
     ref: ref
+  }), cloneElement(children, {
+    onKeyDown: function onKeyDown(e) {
+      var _a, _b;
+
+      (_b = children === null || children === void 0 ? void 0 : (_a = children.props).onKeyDown) === null || _b === void 0 ? void 0 : _b.call(_a, e);
+
+      _onKeyDown(e);
+    }
   }));
 });
 Popconfirm.defaultProps = {
